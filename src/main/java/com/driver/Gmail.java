@@ -22,8 +22,8 @@ public class Gmail extends Email {
 
     int inboxCapacity;
     //maximum number of mails inbox can store
-    TreeMap<Date, EmailMessage> inbox = new TreeMap<>();
-    TreeMap<Date, EmailMessage> trash = new TreeMap<>();
+    TreeMap<String, EmailMessage> inbox = new TreeMap<>();
+    TreeMap<String, EmailMessage> trash = new TreeMap<>();
 
     //Inbox: Stores mails. Each mail has date (Date), sender (String), message (String). It is guaranteed that message is distinct for all mails.
     //Trash: Stores mails. Each mail has date (Date), sender (String), message (String)
@@ -37,13 +37,13 @@ public class Gmail extends Email {
         // It is guaranteed that:
         // 1. Each mail in the inbox is distinct.
         // 2. The mails are received in non-decreasing order. This means that the date of a new mail is greater than equal to the dates of mails received already.
-        if (inbox.size() > inboxCapacity) {
+        if (inbox.size() >= inboxCapacity) {
 
             trash.put(inbox.firstEntry().getKey(), inbox.firstEntry().getValue());
             inbox.remove(inbox.firstEntry().getKey());
 
         }
-        inbox.put(date, new EmailMessage(date, sender, message));
+        inbox.put(message, new EmailMessage(date, sender, message));
 
 
     }
@@ -51,13 +51,14 @@ public class Gmail extends Email {
     public void deleteMail(String message) {
         // Each message is distinct
         // If the given message is found in any mail in the inbox, move the mail to trash, else do nothing
-        for (Map.Entry<Date, EmailMessage>
+
+        for (Map.Entry<String, EmailMessage>
                 entry : inbox.entrySet()) {
-            if (entry.getValue().message.equals(message)) {
+            if (entry.getKey().equals(message)) {
                 trash.put(entry.getKey(), entry.getValue());
-                inbox.remove(entry.getKey());
             }
         }
+        inbox.remove(message);
     }
 
     public String findLatestMessage() {
@@ -86,9 +87,9 @@ public class Gmail extends Email {
         //find number of mails in the inbox which are received between given dates
         //It is guaranteed that start date <= end date
         int count = 0;
-        for (Map.Entry<Date, EmailMessage>
+        for (Map.Entry<String, EmailMessage>
                 entry : inbox.entrySet()) {
-            if (entry.getKey().after(start) && entry.getKey().before(end) || entry.getKey().equals(start) || entry.getKey().equals(end)) {
+            if (entry.getValue().date.after(start) && entry.getValue().date.before(end) || entry.getValue().date.equals(start) || entry.getValue().date.equals(end)) {
                 count++;
             }
         }
