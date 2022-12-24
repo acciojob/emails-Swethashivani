@@ -7,10 +7,23 @@ import java.util.TreeMap;
 
 public class Gmail extends Email {
 
+
+    public class EmailMessage {
+        public Date date;
+        public String sender;
+        public String message;
+
+        public EmailMessage(Date date, String sender, String message) {
+            this.date = date;
+            this.sender = sender;
+            this.message = message;
+        }
+    }
+
     int inboxCapacity;
     //maximum number of mails inbox can store
-    TreeMap<Date, String> inbox = new TreeMap<>();
-    TreeMap<Date, String> trash = new TreeMap<>();
+    TreeMap<Date, EmailMessage> inbox = new TreeMap<>();
+    TreeMap<Date, EmailMessage> trash = new TreeMap<>();
 
     //Inbox: Stores mails. Each mail has date (Date), sender (String), message (String). It is guaranteed that message is distinct for all mails.
     //Trash: Stores mails. Each mail has date (Date), sender (String), message (String)
@@ -30,7 +43,7 @@ public class Gmail extends Email {
             inbox.remove(inbox.firstEntry().getKey());
 
         }
-        inbox.put(date, message);
+        inbox.put(date, new EmailMessage(date, sender, message));
 
 
     }
@@ -38,10 +51,10 @@ public class Gmail extends Email {
     public void deleteMail(String message) {
         // Each message is distinct
         // If the given message is found in any mail in the inbox, move the mail to trash, else do nothing
-        for (Map.Entry<Date, String>
+        for (Map.Entry<Date, EmailMessage>
                 entry : inbox.entrySet()) {
-            if (entry.getValue().equals(message)) {
-                trash.put(entry.getKey(), message);
+            if (entry.getValue().message.equals(message)) {
+                trash.put(entry.getKey(), entry.getValue());
                 inbox.remove(entry.getKey());
             }
         }
@@ -53,7 +66,7 @@ public class Gmail extends Email {
         if (inbox.size() == 0)
             return null;
         else {
-            return inbox.lastEntry().getValue();
+            return inbox.lastEntry().getValue().message;
         }
     }
 
@@ -63,7 +76,7 @@ public class Gmail extends Email {
         if (inbox.size() == 0)
             return null;
         else {
-            return inbox.firstEntry().getValue();
+            return inbox.firstEntry().getValue().message;
         }
 
 
@@ -73,7 +86,7 @@ public class Gmail extends Email {
         //find number of mails in the inbox which are received between given dates
         //It is guaranteed that start date <= end date
         int count = 0;
-        for (Map.Entry<Date, String>
+        for (Map.Entry<Date, EmailMessage>
                 entry : inbox.entrySet()) {
             if (entry.getKey().after(start) && entry.getKey().before(end) || entry.getKey().equals(start) || entry.getKey().equals(end)) {
                 count++;
@@ -96,12 +109,12 @@ public class Gmail extends Email {
 
     public void emptyTrash() {
         // clear all mails in the trash
-trash.clear();
+        trash.clear();
 
     }
 
     public int getInboxCapacity() {
         // Return the maximum number of mails that can be stored in the inbox
-        return this.inboxCapacity-inbox.size();
+        return this.inboxCapacity - inbox.size();
     }
 }
